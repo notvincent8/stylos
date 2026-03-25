@@ -1,4 +1,4 @@
-// Client-side image processor — runs entirely in the browser via Canvas API.
+// Client-side image processor, runs entirely in the browser via Canvas API.
 // Always outputs JPEG for maximum compression compatibility with the Anthropic API.
 
 export const MAX_LONG_EDGE = 1568 // Anthropic's recommended max for vision tasks
