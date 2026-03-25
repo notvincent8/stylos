@@ -1,4 +1,4 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Archivo, Bebas_Neue } from "next/font/google"
 import "./globals.css"
 import type { ReactNode } from "react"
@@ -18,6 +18,10 @@ const archivo = Archivo({
 export const metadata: Metadata = {
   title: "Stylos",
   description: "Visual aesthetic keyword extraction",
+}
+
+export const viewport: Viewport = {
+  viewportFit: "cover",
 }
 
 export default function RootLayout({

@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import KeywordResults from "@/app/features/analysis/KeywordResults"
 import ImageZone from "@/app/features/image/ImageZone"
 import type { Layout } from "@/app/features/sidebar/Sidebar"
@@ -22,6 +22,16 @@ export default function Home() {
   const [customInstructions, setCustomInstructions] = useState("")
 
   const { analyse, error, isLoading, data } = useMagic()
+
+  // Warn before reload/close while analysis is in progress
+  useEffect(() => {
+    if (!isLoading) return
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault()
+    }
+    window.addEventListener("beforeunload", handler)
+    return () => window.removeEventListener("beforeunload", handler)
+  }, [isLoading])
 
   const handleImageFile = useCallback(async (file: File) => {
     setImageError(null)
@@ -88,6 +98,12 @@ export default function Home() {
     }).catch(() => {})
   }, [analyse, selectedFields, maxKeywords, modes, lockedKeywords, customInstructions, image])
 
+  const extractButtonLabel = isLoading
+    ? "Analyzing…"
+    : lockedKeywords.length > 0
+      ? `Fill ${remainingSlots} slot${remainingSlots !== 1 ? "s" : ""}`
+      : "Extract Keywords"
+
   return (
     <>
       <a
@@ -96,7 +112,12 @@ export default function Home() {
       >
         Skip to main content
       </a>
-      <main id="main-content" tabIndex={-1} className="h-screen overflow-hidden flex bg-canvas">
+
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="flex flex-col md:flex-row md:h-screen md:overflow-hidden bg-canvas"
+      >
         <Sidebar
           selectedFields={selectedFields}
           modes={modes}
@@ -114,15 +135,20 @@ export default function Home() {
           onLayoutChange={setLayout}
           onCustomInstructionsChange={setCustomInstructions}
         />
-        <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
+
+        <div className="flex-1 min-w-0 flex flex-col md:overflow-hidden pb-24 md:pb-0">
           <div
-            className={cn("flex-1 min-h-0 overflow-hidden", layout === "columns" ? "flex flex-row" : "flex flex-col")}
+            className={cn(
+              "flex flex-col md:flex-1 md:min-h-0 md:overflow-hidden",
+              layout === "columns" ? "md:flex-row" : "md:flex-col",
+            )}
           >
-            {/* Image zone */}
             <div
               className={cn(
-                "shrink-0 border-edge flex flex-col p-8 overflow-hidden",
-                layout === "columns" ? "w-110 border-r" : "h-[38vh] border-b",
+                "shrink-0 border-edge flex flex-col overflow-hidden",
+                "p-4 md:p-8",
+                "border-b",
+                layout === "columns" ? "md:w-110 md:border-r md:border-b-0" : "md:h-[38vh]",
               )}
             >
               <ImageZone
@@ -134,8 +160,7 @@ export default function Home() {
               />
             </div>
 
-            {/* Keywords zone */}
-            <div className="flex-1 overflow-y-auto p-10 min-w-0 min-h-0">
+            <div className="flex-1 overflow-y-auto p-5 md:p-10 min-w-0 min-h-0">
               <KeywordResults
                 data={data}
                 isLoading={isLoading}
@@ -146,9 +171,7 @@ export default function Home() {
               />
             </div>
           </div>
-
-          {/* AI / legal notice — EU AI Act · GDPR Art. 13 */}
-          <div className="shrink-0 border-t border-edge px-10 py-[0.6rem] flex items-center gap-6">
+          <div className="shrink-0 border-t border-edge px-5 md:px-10 py-[0.6rem] flex items-center gap-3 md:gap-6">
             <span className="font-body text-[0.6rem] tracking-[0.15em] uppercase text-ink/35 font-semibold shrink-0">
               AI Notice
             </span>
@@ -156,7 +179,7 @@ export default function Home() {
             <p className="font-body text-[0.6rem] leading-normal text-ink/42 select-none min-w-0">
               Images are processed by <span className="text-ink/55">Anthropic&apos;s Claude API</span> and not stored by
               this app. Results are AI-generated and may be inaccurate.{" "}
-              <span className="text-ink/42">EU AI Act · GDPR Art. 13</span>
+              <span className="text-ink/42 hidden sm:inline">EU AI Act · GDPR Art. 13</span>
             </p>
             <a
               href="https://github.com/notvincent8"
@@ -169,6 +192,27 @@ export default function Home() {
           </div>
         </div>
       </main>
+      <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden">
+        <div
+          className="bg-canvas/95 backdrop-blur-sm border-t border-edge px-4 pt-3"
+          style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
+        >
+          <button
+            type="button"
+            onClick={handleAnalyse}
+            disabled={!canAnalyse}
+            aria-busy={isLoading}
+            className={cn(
+              "w-full py-4 font-body text-[0.72rem] tracking-[0.22em] uppercase font-bold transition-colors",
+              canAnalyse
+                ? "bg-accent text-canvas border border-accent cursor-pointer active:bg-[#BFED00]"
+                : "bg-surface-3 text-ink/18 border border-edge-mid cursor-not-allowed",
+            )}
+          >
+            {extractButtonLabel}
+          </button>
+        </div>
+      </div>
     </>
   )
 }

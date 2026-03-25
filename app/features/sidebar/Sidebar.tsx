@@ -70,11 +70,15 @@ const Sidebar = ({
   const isOverLimit = remaining < 0
 
   return (
-    <aside aria-label="Controls" className="w-67 shrink-0 h-full border-r border-edge bg-surface flex flex-col overflow-hidden">
-      <div className="flex-1 overflow-y-auto flex flex-col gap-6 p-10 pb-6">
-        {/* Title */}
+    <aside
+      aria-label="Controls"
+      className="w-full md:w-67 shrink-0 md:h-full border-b md:border-b-0 md:border-r border-edge bg-surface flex flex-col md:overflow-hidden"
+    >
+      <div className="flex-1 md:overflow-y-auto flex flex-col gap-5 md:gap-6 p-5 md:p-10 pb-5 md:pb-6">
         <div className="pb-1">
-          <h1 className="font-display text-[3rem] tracking-[0.18em] text-ink uppercase leading-[0.9]">Stylos</h1>
+          <h1 className="font-display text-[2.4rem] md:text-[3rem] tracking-[0.18em] text-ink uppercase leading-[0.9]">
+            Stylos
+          </h1>
           <div className="font-body text-[0.58rem] tracking-[0.2em] uppercase text-ink/42 font-semibold mt-2">
             Aesthetic analysis
           </div>
@@ -133,9 +137,9 @@ const Sidebar = ({
           />
         </div>
 
-        <Rule />
+        <Rule className="hidden md:block" />
 
-        <div className="flex flex-col gap-2">
+        <div className="hidden md:flex flex-col gap-2">
           <span className="font-body text-[0.6rem] tracking-[0.18em] uppercase text-ink/42 font-semibold">Layout</span>
           <div className="flex gap-1.5">
             <button
@@ -170,7 +174,7 @@ const Sidebar = ({
         </div>
       </div>
 
-      <div className="shrink-0 p-10 pt-4 pb-6 border-t border-edge flex flex-col gap-4">
+      <div className="hidden md:flex shrink-0 p-10 pt-4 pb-6 border-t border-edge flex-col gap-4">
         <button
           type="button"
           onClick={onAnalyse}
