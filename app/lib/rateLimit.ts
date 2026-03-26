@@ -3,8 +3,10 @@ import { Redis } from "@upstash/redis"
 
 // Shared Redis instance — used by both the per-IP rate limiter and the
 // per-user daily cap so we only open one connection pool.
-const redis = Redis.fromEnv()
-
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL || "",
+  token: process.env.UPSTASH_REDIS_REST_TOKEN || "",
+})
 // Sliding-window rate limiter backed by Upstash Redis.
 //
 // The `prefix` namespaces keys in the shared database so this app's entries
