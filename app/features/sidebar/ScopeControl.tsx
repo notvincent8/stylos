@@ -51,7 +51,7 @@ const ScopeControl = ({ maxKeywords, lockedCount, remainingSlots, onAdjust }: Sc
       </div>
 
       {lockedCount > 0 && (
-        <div className="font-body text-[0.58rem] tracking-widest uppercase font-semibold text-accent mt-[0.55rem]">
+        <div className="font-body text-[0.65rem] tracking-widest uppercase font-semibold text-accent mt-[0.55rem]">
           {lockedCount} locked · {remainingSlots} open
         </div>
       )}

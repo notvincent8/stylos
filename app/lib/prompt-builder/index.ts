@@ -55,10 +55,10 @@ export const buildPrompt = (options: PromptBuilderOptions): PromptBuildResult =>
   }
 
   if (lockedKeywords.length > 0) {
-    const lockedRule = LOCKED_KEYWORDS_RULE.replace("{LOCKED}", lockedKeywords.map((k) => `- ${stripTags(k)}`).join("\n")).replace(
-      "{REMAINING}",
-      String(remainingSlots),
-    )
+    const lockedRule = LOCKED_KEYWORDS_RULE.replace(
+      "{LOCKED}",
+      lockedKeywords.map((k) => `- ${stripTags(k)}`).join("\n"),
+    ).replace("{REMAINING}", String(remainingSlots))
     systemSections.push(`<locked_keywords>\n${lockedRule.trim()}\n</locked_keywords>`)
   }
 

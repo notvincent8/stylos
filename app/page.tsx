@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
+import DailyUsageNotice from "@/app/components/ui/DailyUsageNotice"
 import KeywordResults from "@/app/features/analysis/KeywordResults"
 import ImageZone from "@/app/features/image/ImageZone"
 import type { Layout } from "@/app/features/sidebar/Sidebar"
@@ -21,7 +22,7 @@ export default function Home() {
   const [layout, setLayout] = useState<Layout>("columns")
   const [customInstructions, setCustomInstructions] = useState("")
 
-  const { analyse, error, isLoading, data } = useMagic()
+  const { analyse, error, isLoading, data, dailyUsed, dailyCap } = useMagic()
 
   // Warn before reload/close while analysis is in progress
   useEffect(() => {
@@ -134,6 +135,8 @@ export default function Home() {
           onAnalyse={handleAnalyse}
           onLayoutChange={setLayout}
           onCustomInstructionsChange={setCustomInstructions}
+          dailyUsed={dailyUsed}
+          dailyCap={dailyCap}
         />
 
         <div className="flex-1 min-w-0 flex flex-col md:overflow-hidden pb-24 md:pb-0">
@@ -197,13 +200,16 @@ export default function Home() {
           className="bg-canvas/95 backdrop-blur-sm border-t border-edge px-4 pt-3"
           style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
         >
+          <div className="mb-3">
+            <DailyUsageNotice used={dailyUsed} cap={dailyCap} compact />
+          </div>
           <button
             type="button"
             onClick={handleAnalyse}
             disabled={!canAnalyse}
             aria-busy={isLoading}
             className={cn(
-              "w-full py-4 font-body text-[0.72rem] tracking-[0.22em] uppercase font-bold transition-colors",
+              "w-full py-4 font-body text-[0.78rem] tracking-[0.22em] uppercase font-bold transition-colors",
               canAnalyse
                 ? "bg-accent text-canvas border border-accent cursor-pointer active:bg-[#BFED00]"
                 : "bg-surface-3 text-ink/18 border border-edge-mid cursor-not-allowed",

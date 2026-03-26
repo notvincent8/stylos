@@ -15,13 +15,26 @@ type UseMagicReturn = {
   data: ParsedKeyword[] | null
   isLoading: boolean
   error: string | null
+  dailyUsed: number | null
+  dailyCap: number | null
   analyse: (options: AnalyseOptions) => Promise<void>
+}
+
+const readUsageHeaders = (headers: Headers): { used: number | null; cap: number | null } => {
+  const usedRaw = headers.get("X-User-Used")
+  const capRaw = headers.get("X-User-Limit")
+  return {
+    used: usedRaw !== null ? Number(usedRaw) : null,
+    cap: capRaw !== null ? Number(capRaw) : null,
+  }
 }
 
 export const useMagic = (): UseMagicReturn => {
   const [data, setData] = useState<ParsedKeyword[] | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [dailyUsed, setDailyUsed] = useState<number | null>(null)
+  const [dailyCap, setDailyCap] = useState<number | null>(null)
   const abortRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
@@ -31,7 +44,14 @@ export const useMagic = (): UseMagicReturn => {
   }, [])
 
   const analyse = useCallback(
-    async ({ fields, maxKeywords, modes, lockedKeywords = [], customInstructions, imageData }: AnalyseOptions): Promise<void> => {
+    async ({
+      fields,
+      maxKeywords,
+      modes,
+      lockedKeywords = [],
+      customInstructions,
+      imageData,
+    }: AnalyseOptions): Promise<void> => {
       if (fields.length === 0) return
 
       abortRef.current?.abort()
@@ -57,9 +77,22 @@ export const useMagic = (): UseMagicReturn => {
         })
 
         if (!res.ok) {
-          setError("Failed to call magic endpoint.")
+          const { used, cap } = readUsageHeaders(res.headers)
+          if (used !== null) setDailyUsed(used)
+          if (cap !== null) setDailyCap(cap)
+
+          try {
+            const body = (await res.json()) as { error?: string }
+            setError(body.error ?? "Failed to analyse the image.")
+          } catch {
+            setError("Failed to analyse the image.")
+          }
           return
         }
+
+        const { used, cap } = readUsageHeaders(res.headers)
+        if (used !== null) setDailyUsed(used)
+        if (cap !== null) setDailyCap(cap)
 
         const { content } = (await res.json()) as { content: Array<{ type: string; text?: string }> }
         const textBlock = content.find((block) => block.type === "text")
@@ -79,5 +112,5 @@ export const useMagic = (): UseMagicReturn => {
     [],
   )
 
-  return { data, isLoading, error, analyse }
+  return { data, isLoading, error, dailyUsed, dailyCap, analyse }
 }

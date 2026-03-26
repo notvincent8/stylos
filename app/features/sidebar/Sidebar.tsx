@@ -1,4 +1,5 @@
 import type { SVGProps } from "react"
+import DailyUsageNotice from "@/app/components/ui/DailyUsageNotice"
 import Rule from "@/app/components/ui/Rule"
 import FieldSelector from "@/app/features/sidebar/FieldSelector"
 import ModeSelector from "@/app/features/sidebar/ModeSelector"
@@ -41,6 +42,8 @@ type SidebarProps = {
   canAnalyse: boolean
   layout: Layout
   customInstructions: string
+  dailyUsed: number | null
+  dailyCap: number | null
   onToggleField: (id: Field) => void
   onToggleMode: (mode: AnalysisMode) => void
   onAdjustMax: (delta: number) => void
@@ -59,6 +62,8 @@ const Sidebar = ({
   canAnalyse,
   layout,
   customInstructions,
+  dailyUsed,
+  dailyCap,
   onToggleField,
   onToggleMode,
   onAdjustMax,
@@ -74,12 +79,12 @@ const Sidebar = ({
       aria-label="Controls"
       className="w-full md:w-67 shrink-0 md:h-full border-b md:border-b-0 md:border-r border-edge bg-surface flex flex-col md:overflow-hidden"
     >
-      <div className="flex-1 md:overflow-y-auto flex flex-col gap-5 md:gap-6 p-5 md:p-10 pb-5 md:pb-6">
+      <div className="flex-1  md:overflow-y-auto flex flex-col gap-5 md:gap-6 p-5 md:p-9 pb-5 md:pb-6">
         <div className="pb-1">
           <h1 className="font-display text-[2.4rem] md:text-[3rem] tracking-[0.18em] text-ink uppercase leading-[0.9]">
             Stylos
           </h1>
-          <div className="font-body text-[0.58rem] tracking-[0.2em] uppercase text-ink/42 font-semibold mt-2">
+          <div className="font-body text-[0.65rem] tracking-[0.2em] uppercase text-ink/42 font-semibold mt-2">
             Aesthetic analysis
           </div>
         </div>
@@ -107,7 +112,7 @@ const Sidebar = ({
           <div className="flex items-center justify-between">
             <label
               htmlFor="hint-textarea"
-              className="font-body text-[0.6rem] tracking-[0.18em] uppercase text-ink/42 font-semibold"
+              className="font-body text-[0.68rem] tracking-[0.18em] uppercase text-ink/42 font-semibold"
             >
               Hint
             </label>
@@ -115,7 +120,7 @@ const Sidebar = ({
               aria-live="polite"
               aria-atomic="true"
               className={cn(
-                "font-body text-[0.52rem] tabular-nums transition-colors",
+                "font-body text-[0.60rem] tabular-nums transition-colors",
                 isOverLimit ? "text-danger" : "text-ink/25",
               )}
             >
@@ -129,7 +134,7 @@ const Sidebar = ({
             rows={3}
             placeholder="e.g. focus on color palette, avoid trend terms…"
             className={cn(
-              "w-full bg-surface-2 border font-body text-[0.65rem] leading-relaxed p-[0.5rem_0.6rem] resize-none",
+              "w-full bg-surface-2 border font-body text-[0.78rem] leading-relaxed p-[0.5rem_0.6rem] resize-none",
               "text-ink/70 placeholder:text-ink/18",
               "focus:outline-none transition-colors",
               isOverLimit ? "border-danger" : "border-edge focus:border-edge-mid",
@@ -140,7 +145,7 @@ const Sidebar = ({
         <Rule className="hidden md:block" />
 
         <div className="hidden md:flex flex-col gap-2">
-          <span className="font-body text-[0.6rem] tracking-[0.18em] uppercase text-ink/42 font-semibold">Layout</span>
+          <span className="font-body text-[0.68rem] tracking-[0.18em] uppercase text-ink/42 font-semibold">Layout</span>
           <div className="flex gap-1.5">
             <button
               type="button"
@@ -154,7 +159,7 @@ const Sidebar = ({
               )}
             >
               <IconColumns className="w-2.5 h-2.5" />
-              <span className="font-body text-[0.56rem] tracking-widest uppercase">Side</span>
+              <span className="font-body text-[0.65rem] tracking-widest uppercase">Side</span>
             </button>
             <button
               type="button"
@@ -168,20 +173,21 @@ const Sidebar = ({
               )}
             >
               <IconRows className="w-2.5 h-2.5" />
-              <span className="font-body text-[0.56rem] tracking-widest uppercase">Stack</span>
+              <span className="font-body text-[0.65rem] tracking-widest uppercase">Stack</span>
             </button>
           </div>
         </div>
       </div>
 
       <div className="hidden md:flex shrink-0 p-10 pt-4 pb-6 border-t border-edge flex-col gap-4">
+        <DailyUsageNotice used={dailyUsed} cap={dailyCap} />
         <button
           type="button"
           onClick={onAnalyse}
           disabled={!canAnalyse}
           aria-busy={isLoading}
           className={cn(
-            "w-full py-[0.95rem] font-body text-[0.72rem] tracking-[0.22em] uppercase font-bold transition-colors",
+            "w-full py-[0.95rem] font-body text-[0.78rem] tracking-[0.22em] uppercase font-bold transition-colors",
             canAnalyse
               ? "bg-accent text-canvas border border-accent hover:bg-[#BFED00] hover:border-[#BFED00] cursor-pointer"
               : "bg-surface-3 text-ink/18 border border-edge-mid cursor-not-allowed",
